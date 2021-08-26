@@ -1,24 +1,27 @@
 // Business Logic
-let roundScore = 0;
-let playerScore = 0;
-let cpuScore = 0;
-let playerTurn = true;
-let gameRuning = true;
+function PigGame() {
+  this.roundScore = 0;
+  this.playerScore = 0;
+  this.cpuScore = 0;
+  this.playerTurn = true;
+}
+
 function d6() {
   const array = [1,2,3,4,5,6];
   const shuffledArray = array.sort((a,b) => 0.5 - Math.random());
   return(shuffledArray[0]);
 }
 
-function scoreReader(x) {
+PigGame.prototype.scoreReader = function(game) {
+  const x = d6();
   if (x === 1) {
-    roundScore = 0;
-    endRound();
+    game.roundScore = 0;
+    game.endRound(game);
   } else {
-    roundScore += x;
+    game.roundScore += x;
   }
   const roundScoreIndicator = $("h3#roundScore");
-  const scoreValue = "Score: " + roundScore;
+  const scoreValue = "Score: " + game.roundScore;
   roundScoreIndicator.text(scoreValue);
 }
 
@@ -27,41 +30,40 @@ function endGame() {
   document.getElementById("pass").disabled = true;
 }
 
-function endRound() {
-  
+PigGame.prototype.endRound = function(game) {
   const turnIndicator = $("h2#turnIndicator");
   const winner = $("h1#winner");
   const roundScoreIndicator = $("h3#roundScore");
-  if (playerTurn === true) {
-    playerScore += roundScore;
+  if (game.playerTurn === true) {
+    game.playerScore += game.roundScore;
     turnIndicator.text("Player2")
-  } else if (playerTurn === false) {
-    cpuScore += roundScore;
+  } else if (game.playerTurn === false) {
+    game.cpuScore += game.roundScore;
     turnIndicator.text("Player1")
   }
-  roundScore = 0;
-  const scoreValue = "Score: " + roundScore;
+  game.roundScore = 0;
+  const scoreValue = "Score: " + game.roundScore;
   roundScoreIndicator.text(scoreValue);
-  scoreCard(playerTurn, cpuScore);
-  if (playerScore >= 100) {
+  game.scoreCard(game);
+  if (game.playerScore >= 100) {
     winner.text("Winner Player1");
     endGame();
   }
-  if (cpuScore >= 100) {
+  if (game.cpuScore >= 100) {
     winner.text("Winner Player2")
     endGame();
   }
-  playerTurn = !playerTurn;
+  game.playerTurn = !game.playerTurn;
 }
 
-function scoreCard() {
+PigGame.prototype.scoreCard = function(game) {
   const score = $("h2#score");
-  const scoreValue = "Player1: " + playerScore +" Player2 " + cpuScore;
+  const scoreValue = "Player1: " + game.playerScore +" Player2 " + game.cpuScore;
   score.text(scoreValue);
 }
-
 // UI Logic
+let game = new PigGame()
 $(document).ready(function(event){
-  document.getElementById("roll").onclick = function() {scoreReader(d6())};
-  document.getElementById("pass").onclick = function() {endRound()};  
+  document.getElementById("roll").onclick = function() {game.scoreReader(game)};
+  document.getElementById("pass").onclick = function() {game.endRound(game)};
 });
